@@ -134,7 +134,7 @@ Feedback, Bug fix, feature requests are always welcome!
 
 ## Privacy
 
-We don't store anything except "hits". That data is used to "cleaning up" unused endpoint
+We don't store anything except "hits" and "updated" timestamp. That data is used to "cleaning up" unused endpoint
 so we can keep the FS thin.
 
 ## ToS
