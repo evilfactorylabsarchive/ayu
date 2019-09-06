@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:1.7
+    command:
+      - --api
+      - --docker
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  redis:
+    image: redis
+    container_name: redis
+    command:
+      - --appendonly yes
+    volumes:
+      - ~/.data/ayu:/data
+    expose:
+      - 6379
+
+  frontend:
+    build: ./frontend
+    labels:
+      - "traefik.port=80"
+      - "traefik.frontend.rule=Host:tinker.evilfactory.id"
+
+  backend:
+    restart: on-failure
+    build: ./backend
+    links:
+      - redis
+    labels:
+      - "traefik.port=80"
+      - "traefik.frontend.rule=Host:tinker.evilfactory.id;PathPrefixStrip:/api"
+      - "traefik.backend.rule.healthcheck.path=/api/healthcheck"
+      - "traefik.backend.healthcheck.interval=10s"
+      - "traefik.backend.healthcheck.timeout=5s"
+
+    environment:
+      - REDIS_URI=redis://redis
+      - NODE_ENV=production
+      - HOST=0.0.0.0
+      - PORT=80
+
